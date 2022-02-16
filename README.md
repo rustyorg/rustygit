@@ -1,2 +1,2 @@
 # rustygit
-A port of https://github.com/jesseduffield/lazygit to rust
+A git TUI inspired by https://github.com/jesseduffield/lazygit, written in rust
