@@ -1,19 +1,12 @@
-use std::{
-    error::Error,
-    io,
-    time::{Duration},
-};
+use std::{error::Error, io, time::Duration};
 
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{DisableMouseCapture, EnableMouseCapture},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 
-use tui::{
-    backend::{Backend, CrosstermBackend},
-    Terminal,
-};
+use tui::{backend::CrosstermBackend, Terminal};
 
 mod app;
 mod event_loop;

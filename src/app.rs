@@ -1,17 +1,4 @@
-use tui::{
-    backend::{Backend, CrosstermBackend},
-    layout::{Constraint, Corner, Direction, Layout},
-    style::{Color, Modifier, Style},
-    text::{Span, Spans},
-    widgets::{Block, Borders, List, ListItem, ListState},
-    Frame, Terminal,
-};
-
-use std::{
-    error::Error,
-    io,
-    time::{Duration, Instant},
-};
+use tui::widgets::ListState;
 
 pub struct StatefulList {
     pub state: ListState,
@@ -27,12 +14,10 @@ impl App {
     pub fn new() -> App {
         App {
             title: "RustyGit".to_string(),
-            items: StatefulList::with_items(vec![
-                "Item0".to_string(),
-            ])
+            items: StatefulList::with_items(vec!["Item0".to_string()]),
         }
     }
-  }
+}
 
 impl StatefulList {
     pub fn with_items(items: Vec<String>) -> Self {
