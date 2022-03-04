@@ -75,3 +75,79 @@ impl<T> StatefulList<T> {
     self.state.select(None);
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_starts_at_none() {
+    let list = StatefulList::with_items(vec!["a", "b", "c"]);
+
+    assert_eq!(list.state.selected(), None);
+  }
+
+  #[test]
+  fn test_next_selects() {
+    let mut list = StatefulList::with_items(vec!["a", "b", "c"]);
+
+    list.next();
+
+    assert_eq!(list.state.selected(), Some(0));
+  }
+
+  #[test]
+  fn test_next_increments() {
+    let mut list = StatefulList::with_items(vec!["a", "b", "c"]);
+
+    list.next();
+    list.next();
+
+    assert_eq!(list.state.selected(), Some(1));
+  }
+
+  #[test]
+  fn test_next_wrap() {
+    let mut list = StatefulList::with_items(vec!["a", "b"]);
+
+    list.next();
+    list.next();
+
+    assert_eq!(list.state.selected(), Some(1));
+
+    list.next();
+    assert_eq!(list.state.selected(), Some(0));
+  }
+
+  #[test]
+  fn test_previous_selects() {
+    let mut list = StatefulList::with_items(vec!["a", "b", "c"]);
+
+    list.previous();
+
+    assert_eq!(list.state.selected(), Some(0));
+  }
+
+  #[test]
+  fn test_previous_decrements() {
+    let mut list = StatefulList::with_items(vec!["a", "b", "c"]);
+
+    list.previous();
+    list.previous();
+
+    assert_eq!(list.state.selected(), Some(2));
+  }
+
+  #[test]
+  fn test_unselect() {
+    let mut list = StatefulList::with_items(vec!["a", "b", "c"]);
+
+    list.next();
+
+    assert_eq!(list.state.selected(), Some(0));
+
+    list.unselect();
+
+    assert_eq!(list.state.selected(), None);
+  }
+}
