@@ -8,5 +8,5 @@ edition = "2021"
 [dependencies]
 tui = { version = "0.17", default-features = false, features = ['crossterm', 'serde'] }
 crossterm = { version = "0.23", features = [ "serde" ] }
-clap = "3.0"
+git2 = "0.14.1"
 serde = "1.0"
