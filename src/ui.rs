@@ -25,7 +25,11 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
   // Create a List from all list items and highlight the currently selected one
   let items = List::new(items)
-    .block(Block::default().borders(Borders::ALL).title(app.title.as_str()))
+    .block(
+      Block::default()
+        .borders(Borders::ALL)
+        .title(app.title.as_str()),
+    )
     .highlight_style(
       Style::default()
         .bg(Color::LightGreen)
