@@ -1,42 +1,65 @@
-use git2::Repository;
+use std::marker::PhantomData;
+
+use git2::{build::RepoBuilder, Repository, StatusEntry, StatusOptions, Statuses};
 use tui::widgets::ListState;
 
 use crate::git;
 
-pub struct StatefulList<T> {
+pub trait DisplayList {
+  fn display_list(&self) -> Vec<String>;
+
+  fn len(&self) -> usize {
+    self.display_list().len()
+  }
+}
+
+pub struct StatefulList<T>
+where
+  T: DisplayList,
+{
   pub state: ListState,
-  pub items: Vec<T>,
+  pub items: T,
 }
 
-pub struct App {
-  pub repo: Repository,
+pub struct App<'a> {
+  pub repo: &'a Repository,
   pub title: String,
-  pub items: StatefulList<String>,
+  pub items: StatefulList<Statuses<'a>>,
 }
 
-impl App {
-  pub fn new() -> App {
-    let repo = git::open_current_repo();
+impl<'a> DisplayList for Statuses<'a> {
+  fn display_list(&self) -> Vec<String> {
+    self.iter().filter_map(|ref s | s.path().map(|p| p.to_string())).collect()
+  }
+}
+
+impl DisplayList for Vec<&str> {
+    fn display_list(&self) -> Vec<String> {
+      self.iter().map(|i| i.to_string()).collect()
+    }
+}
+
+impl<'a> App<'a> {
+  pub fn new(repo: &'a Repository) -> Self {
     // This is just a placeholder example of getting a list of files from git.
     // See https://github.com/rust-lang/git2-rs/blob/master/examples/status.rs for
     // full examples of using the git status APIs.
-    let filenames = repo
-      .statuses(None)
-      .expect("Unable to get status.")
-      .iter()
-      .filter_map(|s| s.path().map(|p| p.to_string()))
-      .collect();
+    let mut status_opts = StatusOptions::new();
+    status_opts.include_ignored(false);
+
+    let statuses = repo.statuses(Some(&mut status_opts)).expect("can't do it");
 
     App {
       repo,
       title: "RustyGit".to_string(),
-      items: StatefulList::with_items(filenames),
+      items: StatefulList::with_items(statuses),
     }
   }
 }
 
-impl<T> StatefulList<T> {
-  pub fn with_items(items: Vec<T>) -> Self {
+impl<T: DisplayList> StatefulList<T>
+{
+  pub fn with_items(items: T) -> Self {
     StatefulList {
       state: ListState::default(),
       items,
@@ -57,7 +80,7 @@ impl<T> StatefulList<T> {
     self.state.select(Some(i));
   }
 
-  pub fn previous(&mut self) {
+  pub fn previous(& mut self) {
     let i = match self.state.selected() {
       Some(i) => {
         if i == 0 {

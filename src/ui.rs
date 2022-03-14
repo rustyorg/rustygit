@@ -7,6 +7,7 @@ use tui::{
 };
 
 use crate::app::App;
+use crate::app::DisplayList;
 
 pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
   // Create two chunks with equal horizontal screen space
@@ -19,8 +20,9 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
   let items: Vec<ListItem> = app
     .items
     .items
-    .iter()
-    .map(|i| ListItem::new(i.as_ref()).style(Style::default().fg(Color::Black).bg(Color::White)))
+    .display_list()
+    .into_iter()
+    .map(|i| ListItem::new(i).style(Style::default().fg(Color::Black).bg(Color::White)))
     .collect();
 
   // Create a List from all list items and highlight the currently selected one

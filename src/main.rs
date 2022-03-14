@@ -21,7 +21,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
   // create app and run it
   let tick_rate = Duration::from_millis(250);
-  let app = app::App::new();
+  let repo = git::open_current_repo();
+  let app = app::App::new(&repo);
   let res = event_loop::run_app(&mut terminal, app, tick_rate);
 
   // restore terminal
