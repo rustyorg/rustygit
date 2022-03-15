@@ -1,22 +1,33 @@
 use std::marker::PhantomData;
 
 use git2::{build::RepoBuilder, Repository, StatusEntry, StatusOptions, Statuses};
-use tui::widgets::ListState;
+use tui::{
+  style::{Color, Style},
+  widgets::{ListItem, ListState},
+};
 
 use crate::git;
 
+// struct DisplayItem {
+//   colour: Color,
+//   text: String,
+//   index: usize
+// }
+
 pub trait DisplayList {
-  fn display_list(&self) -> Vec<String>;
+  fn display_list(&self) -> Vec<ListItem>;
 
   fn len(&self) -> usize {
     self.display_list().len()
   }
 }
 
-pub struct StatefulList<T>
-where
-  T: DisplayList,
-{
+// pub struct StatefulList<T>
+// {
+//   pub state: ListState,
+//   pub items: Vec<T>,
+// }
+pub struct StatefulList<T> {
   pub state: ListState,
   pub items: T,
 }
@@ -28,15 +39,21 @@ pub struct App<'a> {
 }
 
 impl<'a> DisplayList for Statuses<'a> {
-  fn display_list(&self) -> Vec<String> {
-    self.iter().filter_map(|ref s | s.path().map(|p| p.to_string())).collect()
+  fn display_list(&self) -> Vec<ListItem> {
+    self
+      .iter()
+      .map(|s| {
+        let filename = s.path().unwrap_or("").to_string();
+        ListItem::new(filename).style(Style::default().fg(Color::Black).bg(Color::White))
+      })
+      .collect()
   }
 }
 
 impl DisplayList for Vec<&str> {
-    fn display_list(&self) -> Vec<String> {
-      self.iter().map(|i| i.to_string()).collect()
-    }
+  fn display_list(&self) -> Vec<ListItem> {
+    self.iter().map(|i| ListItem::new(*i).style(Style::default().fg(Color::Black).bg(Color::White))).collect()
+  }
 }
 
 impl<'a> App<'a> {
@@ -47,7 +64,9 @@ impl<'a> App<'a> {
     let mut status_opts = StatusOptions::new();
     status_opts.include_ignored(false);
 
-    let statuses = repo.statuses(Some(&mut status_opts)).expect("can't do it");
+    let statuses: Statuses<'a> = repo
+      .statuses(Some(&mut status_opts))
+      .expect("error getting git status");
 
     App {
       repo,
@@ -57,7 +76,9 @@ impl<'a> App<'a> {
   }
 }
 
-impl<T: DisplayList> StatefulList<T>
+impl<T> StatefulList<T>
+where
+  T: DisplayList,
 {
   pub fn with_items(items: T) -> Self {
     StatefulList {
@@ -80,7 +101,7 @@ impl<T: DisplayList> StatefulList<T>
     self.state.select(Some(i));
   }
 
-  pub fn previous(& mut self) {
+  pub fn previous(&mut self) {
     let i = match self.state.selected() {
       Some(i) => {
         if i == 0 {
