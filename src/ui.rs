@@ -20,7 +20,20 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     .items
     .items
     .iter()
-    .map(|i| ListItem::new(i.as_ref()).style(Style::default().fg(Color::Black).bg(Color::White)))
+    .map(|i| {
+      let colour = if i.status().is_wt_new() {
+        Color::Yellow
+      } else if i.status().is_wt_modified() {
+        Color::Green
+      } else if i.status().is_wt_deleted() {
+        Color::Red
+      } else {
+        Color::White
+      };
+
+      ListItem::new(i.path().expect("no path defined!").to_string())
+        .style(Style::default().fg(colour))
+    })
     .collect();
 
   // Create a List from all list items and highlight the currently selected one
@@ -30,11 +43,7 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .borders(Borders::ALL)
         .title(app.title.as_str()),
     )
-    .highlight_style(
-      Style::default()
-        .bg(Color::LightGreen)
-        .add_modifier(Modifier::BOLD),
-    )
+    .highlight_style(Style::default().add_modifier(Modifier::BOLD))
     .highlight_symbol(">> ");
 
   // We can now render the item list
