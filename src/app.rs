@@ -1,42 +1,50 @@
-use git2::Repository;
+use git2::{Repository, Statuses};
 use tui::widgets::ListState;
-
-use crate::git;
 
 pub struct StatefulList<T> {
   pub state: ListState,
-  pub items: Vec<T>,
+  pub items: T,
 }
 
-pub struct App {
-  pub repo: Repository,
-  pub title: &'static str,
-  pub items: StatefulList<String>,
+pub struct App<'a> {
+  pub repo: &'a Repository,
+  pub title: String,
+  pub items: StatefulList<Statuses<'a>>,
 }
 
-impl App {
-  pub fn new() -> App {
-    let repo = git::open_current_repo();
+impl<'a> App<'a> {
+  pub fn new(repo: &'a Repository) -> App<'a> {
     // This is just a placeholder example of getting a list of files from git.
     // See https://github.com/rust-lang/git2-rs/blob/master/examples/status.rs for
     // full examples of using the git status APIs.
-    let filenames = repo
-      .statuses(None)
-      .expect("Unable to get status.")
-      .iter()
-      .filter_map(|s| s.path().map(|p| p.to_string()))
-      .collect();
+    let statuses = repo.statuses(None).expect("Unable to get status.");
 
     App {
       repo,
-      title: "RustyGit",
-      items: StatefulList::with_items(filenames),
+      title: "RustyGit".to_string(),
+      items: StatefulList::with_items(statuses),
     }
   }
 }
 
-impl<T> StatefulList<T> {
-  pub fn with_items(items: Vec<T>) -> Self {
+trait DisplayList {
+  fn len(&self) -> usize;
+}
+
+impl<'a> DisplayList for Statuses<'a> {
+  fn len(&self) -> usize {
+    self.iter().count()
+  }
+}
+
+impl<T> DisplayList for Vec<T> {
+  fn len(&self) -> usize {
+    self.len()
+  }
+}
+
+impl<T: DisplayList> StatefulList<T> {
+  pub fn with_items(items: T) -> Self {
     StatefulList {
       state: ListState::default(),
       items,
