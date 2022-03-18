@@ -40,19 +40,29 @@ pub struct App<'a> {
 
 impl<'a> DisplayList for Statuses<'a> {
   fn display_list(&self) -> Vec<ListItem> {
-    self
-      .iter()
-      .map(|s| {
-        let filename = s.path().unwrap_or("").to_string();
-        ListItem::new(filename).style(Style::default().fg(Color::Black).bg(Color::White))
-      })
-      .collect()
+    self.iter().map(status_entry_to_list_item).collect()
   }
+}
+
+fn status_entry_to_list_item(s: StatusEntry) -> ListItem {
+  let filename = s.path().unwrap_or("").to_string();
+  let status = s.status();
+  let colour = if status.is_wt_modified() {
+    Color::Red
+  } else if status.is_wt_new() {
+    Color::LightBlue
+  } else {
+    Color::Gray
+  };
+  ListItem::new(filename).style(Style::default().fg(colour).bg(Color::Black))
 }
 
 impl DisplayList for Vec<&str> {
   fn display_list(&self) -> Vec<ListItem> {
-    self.iter().map(|i| ListItem::new(*i).style(Style::default().fg(Color::Black).bg(Color::White))).collect()
+    self
+      .iter()
+      .map(|i| ListItem::new(*i).style(Style::default().fg(Color::Black).bg(Color::White)))
+      .collect()
   }
 }
 
@@ -63,6 +73,7 @@ impl<'a> App<'a> {
     // full examples of using the git status APIs.
     let mut status_opts = StatusOptions::new();
     status_opts.include_ignored(false);
+    status_opts.include_untracked(true);
 
     let statuses: Statuses<'a> = repo
       .statuses(Some(&mut status_opts))
