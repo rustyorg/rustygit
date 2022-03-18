@@ -28,7 +28,7 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     .block(
       Block::default()
         .borders(Borders::ALL)
-        .title(app.title.as_str()),
+        .title(app.title),
     )
     .highlight_style(
       Style::default()

@@ -10,7 +10,7 @@ pub struct StatefulList<T> {
 
 pub struct App {
   pub repo: Repository,
-  pub title: String,
+  pub title: &'static str,
   pub items: StatefulList<String>,
 }
 
@@ -29,7 +29,7 @@ impl App {
 
     App {
       repo,
-      title: "RustyGit".to_string(),
+      title: "RustyGit",
       items: StatefulList::with_items(filenames),
     }
   }
