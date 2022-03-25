@@ -27,6 +27,7 @@ pub fn run_app<B: Backend>(
           KeyCode::Left => app.list.unselect(),
           KeyCode::Down => app.list.next(),
           KeyCode::Up => app.list.previous(),
+          KeyCode::Char(' ') => app.primary_action(),
           _ => {}
         }
       }
