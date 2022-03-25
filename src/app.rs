@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use git2::{Repository, Statuses};
 use tui::style::{Color, Style};
 use tui::widgets::{ListItem, ListState};
@@ -24,6 +26,20 @@ impl<'a> App<'a> {
       repo,
       title: "RustyGit".to_string(),
       list: StatefulList::with_items(statuses),
+    }
+  }
+
+  pub fn primary_action(&mut self) {
+    let index = self.list.selected_index();
+    if let Some(index) = index {
+      let status = self.list.items.get(index).unwrap();
+      let path = status.path().unwrap();
+      self
+        .repo
+        .index()
+        .unwrap()
+        .add_path(Path::new(path))
+        .unwrap();
     }
   }
 }
@@ -110,6 +126,10 @@ impl<T: DisplayList> StatefulList<T> {
 
   pub fn unselect(&mut self) {
     self.state.select(None);
+  }
+
+  pub fn selected_index(&self) -> Option<usize> {
+    self.state.selected()
   }
 }
 
