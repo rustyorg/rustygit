@@ -24,9 +24,9 @@ pub fn run_app<B: Backend>(
       if let Event::Key(key) = event::read()? {
         match key.code {
           KeyCode::Char('q') => return Ok(()),
-          KeyCode::Left => app.items.unselect(),
-          KeyCode::Down => app.items.next(),
-          KeyCode::Up => app.items.previous(),
+          KeyCode::Left => app.list.unselect(),
+          KeyCode::Down => app.list.next(),
+          KeyCode::Up => app.list.previous(),
           _ => {}
         }
       }
