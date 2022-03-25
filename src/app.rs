@@ -1,5 +1,6 @@
 use git2::{Repository, Statuses};
-use tui::widgets::ListState;
+use tui::style::{Color, Style};
+use tui::widgets::{ListItem, ListState};
 
 pub struct StatefulList<T> {
   pub state: ListState,
@@ -9,7 +10,7 @@ pub struct StatefulList<T> {
 pub struct App<'a> {
   pub repo: &'a Repository,
   pub title: String,
-  pub items: StatefulList<Statuses<'a>>,
+  pub list: StatefulList<Statuses<'a>>,
 }
 
 impl<'a> App<'a> {
@@ -22,24 +23,52 @@ impl<'a> App<'a> {
     App {
       repo,
       title: "RustyGit".to_string(),
-      items: StatefulList::with_items(statuses),
+      list: StatefulList::with_items(statuses),
     }
   }
 }
 
-trait DisplayList {
+pub trait DisplayList {
   fn len(&self) -> usize;
+  fn list_items(&self) -> Vec<ListItem>;
 }
 
 impl<'a> DisplayList for Statuses<'a> {
   fn len(&self) -> usize {
     self.iter().count()
   }
+
+  fn list_items(&self) -> Vec<ListItem> {
+    self
+      .iter()
+      .map(|i| {
+        let colour = if i.status().is_wt_new() {
+          Color::Yellow
+        } else if i.status().is_wt_modified() {
+          Color::Green
+        } else if i.status().is_wt_deleted() {
+          Color::Red
+        } else {
+          Color::White
+        };
+
+        ListItem::new(i.path().expect("no path defined!").to_string())
+          .style(Style::default().fg(colour))
+      })
+      .collect()
+  }
 }
 
-impl<T> DisplayList for Vec<T> {
+impl DisplayList for Vec<&str> {
   fn len(&self) -> usize {
     self.len()
+  }
+
+  fn list_items(&self) -> Vec<ListItem> {
+    self
+      .iter()
+      .map(|i| ListItem::new(i.to_string()).style(Style::default()))
+      .collect()
   }
 }
 
