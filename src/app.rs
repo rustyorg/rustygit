@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use anyhow::{anyhow, Result};
 use git2::{Repository, Statuses};
 use tui::style::{Color, Style};
 use tui::widgets::{ListItem, ListState};
@@ -29,18 +30,20 @@ impl<'a> App<'a> {
     }
   }
 
-  pub fn primary_action(&mut self) {
+  pub fn primary_action(&mut self) -> Result<()> {
     let index = self.list.selected_index();
     if let Some(index) = index {
-      let status = self.list.items.get(index).unwrap();
-      let path = status.path().unwrap();
-      self
-        .repo
-        .index()
-        .unwrap()
-        .add_path(Path::new(path))
-        .unwrap();
+      let status = self
+        .list
+        .items
+        .get(index)
+        .ok_or(anyhow!("Invalid status index"))?;
+      let path = status.path().ok_or(anyhow!("Invalid path"))?;
+      let mut index = self.repo.index()?;
+      index.add_path(Path::new(path))?;
+      index.write()?;
     }
+    Ok(())
   }
 }
 

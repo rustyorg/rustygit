@@ -1,4 +1,6 @@
+use anyhow::{anyhow, Result};
 use crossterm::event::{self, Event, KeyCode};
+
 use std::{
   io,
   time::{Duration, Instant},
@@ -27,9 +29,13 @@ pub fn run_app<B: Backend>(
           KeyCode::Left => app.list.unselect(),
           KeyCode::Down => app.list.next(),
           KeyCode::Up => app.list.previous(),
-          KeyCode::Char(' ') => app.primary_action(),
-          _ => {}
-        }
+          KeyCode::Char(' ') => {
+            if let Err(_error) = app.primary_action() {
+              // TODO, display errors in a panel
+            };
+          }
+          _ => (),
+        };
       }
     }
     if last_tick.elapsed() >= tick_rate {
