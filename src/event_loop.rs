@@ -1,6 +1,4 @@
-use anyhow::{anyhow, Result};
 use crossterm::event::{self, Event, KeyCode};
-
 use std::{
   io,
   time::{Duration, Instant},

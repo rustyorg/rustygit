@@ -37,8 +37,8 @@ impl<'a> App<'a> {
         .list
         .items
         .get(index)
-        .ok_or(anyhow!("Invalid status index"))?;
-      let path = status.path().ok_or(anyhow!("Invalid path"))?;
+        .ok_or_else(|| anyhow!("Invalid status index"))?;
+      let path = status.path().ok_or_else(|| anyhow!("Invalid path"))?;
       let mut index = self.repo.index()?;
       index.add_path(Path::new(path))?;
       index.write()?;
