@@ -5,7 +5,7 @@ use std::{
 };
 use tui::{backend::Backend, Terminal};
 
-use crate::app::{App, StatefulList};
+use crate::app::App;
 use crate::ui::ui;
 
 pub fn run_app<B: Backend>(
@@ -31,8 +31,7 @@ pub fn run_app<B: Backend>(
             if let Err(_error) = app.primary_action() {
               // TODO, display errors in a panel
             };
-            app.update_current_statuses();
-
+            app.refresh_statuses();
           }
           _ => (),
         };

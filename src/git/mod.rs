@@ -1,3 +1,7 @@
+/**
+ * This module contains helper methods for types in the git2 library
+ * in order to provide a higher-level or simpler API where useful.
+ */
 use std::path::Path;
 
 use anyhow::{anyhow, Result};

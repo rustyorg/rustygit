@@ -1,8 +1,7 @@
-use std::ops::Deref;
 use std::path::Path;
 
 use anyhow::{anyhow, Result};
-use git2::{Repository, Statuses, Status, StatusEntry};
+use git2::{Repository, StatusEntry, Statuses};
 use tui::style::{Color, Style};
 use tui::widgets::{ListItem, ListState};
 
@@ -33,7 +32,7 @@ impl<'a> App<'a> {
     }
   }
 
-  pub fn update_current_statuses(&mut self) {
+  pub fn refresh_statuses(&mut self) {
     let statuses = self.repo.statuses(None).expect("Unable to get status.");
     self.list.update_items(statuses);
   }
@@ -45,23 +44,38 @@ impl<'a> App<'a> {
       let path = status.get_path()?;
 
       if status.status().is_staged() {
-        let head = self.repo.head()?.peel_to_commit()?;
-        self.repo.reset_default(Some(head.as_object()), [path])?;
+        self.reset_path(path)?;
       } else {
-        let mut index = self.repo.index()?;
-        index.add_path(path)?;
-        index.write()?;
+        self.add_path_to_index(path)?;
       }
     }
     Ok(())
   }
 
+  /**
+   * Resets that status of the given path to HEAD
+   * i.e. any changes are removed from the index,
+   * eqivilent to `git reset [path]`
+   */
+  fn reset_path(&self, path: &Path) -> Result<()> {
+    let head = self.repo.head()?.peel_to_commit()?;
+    self.repo.reset_default(Some(head.as_object()), [path])?;
+    Ok(())
+  }
+
+  fn add_path_to_index(&self, path: &Path) -> Result<()> {
+    let mut index = self.repo.index()?;
+    index.add_path(path)?;
+    index.write()?;
+    Ok(())
+  }
+
   fn status_entry_at_index(&self, index: usize) -> Result<StatusEntry> {
-      self
-        .list
-        .items
-        .get(index)
-        .ok_or_else(|| anyhow!("Invalid status index"))
+    self
+      .list
+      .items
+      .get(index)
+      .ok_or_else(|| anyhow!("Invalid status index"))
   }
 }
 
