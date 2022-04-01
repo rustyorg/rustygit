@@ -10,3 +10,4 @@ tui = { version = "0.17", default-features = false, features = ['crossterm', 'se
 crossterm = { version = "0.23", features = [ "serde" ] }
 git2 = "0.14.1"
 serde = "1.0"
+anyhow = "1.0"

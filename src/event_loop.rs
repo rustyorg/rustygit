@@ -24,11 +24,16 @@ pub fn run_app<B: Backend>(
       if let Event::Key(key) = event::read()? {
         match key.code {
           KeyCode::Char('q') => return Ok(()),
-          KeyCode::Left => app.items.unselect(),
-          KeyCode::Down => app.items.next(),
-          KeyCode::Up => app.items.previous(),
-          _ => {}
-        }
+          KeyCode::Left => app.list.unselect(),
+          KeyCode::Down => app.list.next(),
+          KeyCode::Up => app.list.previous(),
+          KeyCode::Char(' ') => {
+            if let Err(_error) = app.primary_action() {
+              // TODO, display errors in a panel
+            };
+          }
+          _ => (),
+        };
       }
     }
     if last_tick.elapsed() >= tick_rate {
