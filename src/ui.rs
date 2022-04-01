@@ -24,5 +24,6 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     .highlight_symbol(">> ");
 
   // We can now render the item list
+
   f.render_stateful_widget(items, chunks[0], &mut app.list.state);
 }
