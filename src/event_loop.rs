@@ -31,6 +31,7 @@ pub fn run_app<B: Backend>(
             if let Err(_error) = app.primary_action() {
               // TODO, display errors in a panel
             };
+            app.refresh_statuses();
           }
           _ => (),
         };

@@ -1,9 +1,11 @@
 use std::path::Path;
 
 use anyhow::{anyhow, Result};
-use git2::{Repository, Statuses};
+use git2::{Repository, StatusEntry, Statuses};
 use tui::style::{Color, Style};
 use tui::widgets::{ListItem, ListState};
+
+use crate::git::{GetPath, StatusExt};
 
 pub struct StatefulList<T> {
   pub state: ListState,
@@ -30,20 +32,50 @@ impl<'a> App<'a> {
     }
   }
 
+  pub fn refresh_statuses(&mut self) {
+    let statuses = self.repo.statuses(None).expect("Unable to get status.");
+    self.list.update_items(statuses);
+  }
+
   pub fn primary_action(&mut self) -> Result<()> {
     let index = self.list.selected_index();
     if let Some(index) = index {
-      let status = self
-        .list
-        .items
-        .get(index)
-        .ok_or_else(|| anyhow!("Invalid status index"))?;
-      let path = status.path().ok_or_else(|| anyhow!("Invalid path"))?;
-      let mut index = self.repo.index()?;
-      index.add_path(Path::new(path))?;
-      index.write()?;
+      let status = self.status_entry_at_index(index)?;
+      let path = status.get_path()?;
+
+      if status.status().is_staged() {
+        self.reset_path(path)?;
+      } else {
+        self.add_path_to_index(path)?;
+      }
     }
     Ok(())
+  }
+
+  /**
+   * Resets that status of the given path to HEAD
+   * i.e. any changes are removed from the index,
+   * eqivilent to `git reset [path]`
+   */
+  fn reset_path(&self, path: &Path) -> Result<()> {
+    let head = self.repo.head()?.peel_to_commit()?;
+    self.repo.reset_default(Some(head.as_object()), [path])?;
+    Ok(())
+  }
+
+  fn add_path_to_index(&self, path: &Path) -> Result<()> {
+    let mut index = self.repo.index()?;
+    index.add_path(path)?;
+    index.write()?;
+    Ok(())
+  }
+
+  fn status_entry_at_index(&self, index: usize) -> Result<StatusEntry> {
+    self
+      .list
+      .items
+      .get(index)
+      .ok_or_else(|| anyhow!("Invalid status index"))
   }
 }
 
@@ -97,6 +129,10 @@ impl<T: DisplayList> StatefulList<T> {
       state: ListState::default(),
       items,
     }
+  }
+
+  fn update_items(&mut self, items: T) {
+    self.items = items;
   }
 
   pub fn next(&mut self) {
