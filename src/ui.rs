@@ -34,8 +34,11 @@ pub fn render_left_view<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
   render_files(f, app, chunks[1])
 }
 
-pub fn render_status<B: Backend>(f: &mut Frame<B>, _app: &mut App, area: Rect) {
-  let paragraph = Paragraph::new("This is the current status")
+pub fn render_status<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+  let (ahead, behind) = app.branch.ahead_behind.unwrap();
+  // let count = app.branch.branch_local.get().is_branch();
+  let name = format!("{}↑ {}↓ -> {:?}", ahead, behind, app.branch.name.clone());
+  let paragraph = Paragraph::new(name)
     .style(Style::default().fg(Color::White))
     .block(create_block("Status"));
   f.render_widget(paragraph, area)
