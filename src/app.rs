@@ -5,7 +5,7 @@ use git2::{Repository, StatusEntry, Statuses};
 use tui::style::{Color, Style};
 use tui::widgets::{ListItem, ListState};
 
-use crate::git::{get_current_branch, get_current_branch_name, Branch};
+use crate::git::branch::Branch;
 use crate::git::{GetPath, StatusExt};
 
 pub struct StatefulList<T> {
@@ -26,13 +26,12 @@ impl<'a> App<'a> {
     // See https://github.com/rust-lang/git2-rs/blob/master/examples/status.rs for
     // full examples of using the git status APIs.
     let statuses = repo.statuses(None).expect("Unable to get status.");
-    let branch = get_current_branch(repo).unwrap();
 
     App {
       repo,
       title: "RustyGit",
       list: StatefulList::with_items(statuses),
-      branch,
+      branch: Branch::new(repo),
     }
   }
 
