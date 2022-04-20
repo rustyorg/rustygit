@@ -23,8 +23,10 @@ fn main() -> Result<(), Box<dyn Error>> {
   // create app and run it
   let tick_rate = Duration::from_millis(250);
   let repo = git::open_current_repo();
+
   let mut app = app::App::new(&repo);
   app.branch.initialize();
+
   let res = event_loop::run_app(&mut terminal, app, tick_rate);
 
   // restore terminal

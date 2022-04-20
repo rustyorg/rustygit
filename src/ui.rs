@@ -36,13 +36,14 @@ pub fn render_left_view<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
 
 pub fn render_status<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
   let (ahead, behind) = app.branch.ahead_behind;
-  // let count = app.branch.branch_local.get().is_branch();
+
   let name = format!(
     "{}↑ {}↓ -> {}",
     ahead,
     behind,
     app.branch.name.as_ref().unwrap_or(&"Unknown".to_string())
   );
+
   let paragraph = Paragraph::new(name)
     .style(Style::default().fg(Color::White))
     .block(create_block("Status"));
