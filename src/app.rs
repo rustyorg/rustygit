@@ -17,6 +17,7 @@ pub struct App<'a> {
   pub repo: &'a Repository,
   pub title: &'static str,
   pub list: StatefulList<Statuses<'a>>,
+  // this is a comment
   pub branch: Branch<'a>,
 }
 
