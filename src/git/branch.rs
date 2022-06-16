@@ -38,13 +38,13 @@ impl<'a> Branch<'a> {
       return (0, 0);
     }
 
-    match self.repo.graph_ahead_behind(
-      self.get_branch_oid(local_branch).unwrap(),
-      self.get_branch_oid(upstream_branch).unwrap(),
-    ) {
-      Ok(values) => values,
-      Err(_) => (0, 0),
-    }
+    self
+      .repo
+      .graph_ahead_behind(
+        self.get_branch_oid(local_branch).unwrap(),
+        self.get_branch_oid(upstream_branch).unwrap(),
+      )
+      .unwrap_or((0, 0))
   }
 
   pub fn get_current_branch_name(&self) -> Option<String> {
@@ -97,8 +97,7 @@ impl<'a> Branch<'a> {
         .get()
         .peel(ObjectType::Commit)
         .unwrap()
-        .id()
-        .clone();
+        .id();
       Some(id)
     }
   }
