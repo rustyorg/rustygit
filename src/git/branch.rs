@@ -50,8 +50,7 @@ impl<'a> Branch<'a> {
   pub fn get_current_branch_name(&self) -> Option<String> {
     let head = self.get_repo_head();
 
-    if head.is_some() {
-      let branch = head.unwrap();
+    if let Some(branch) = head {
       if branch.shorthand().is_some() {
         let name = branch.shorthand().unwrap().to_string();
         return Some(name);
