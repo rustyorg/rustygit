@@ -1,9 +1,10 @@
+use std::{error::Error, io, time::Duration};
+
 use crossterm::{
   event::{DisableMouseCapture, EnableMouseCapture},
   execute,
   terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use std::{error::Error, io, time::Duration};
 use tui::{backend::CrosstermBackend, Terminal};
 
 mod app;
@@ -22,7 +23,10 @@ fn main() -> Result<(), Box<dyn Error>> {
   // create app and run it
   let tick_rate = Duration::from_millis(250);
   let repo = git::open_current_repo();
-  let app = app::App::new(&repo);
+
+  let mut app = app::App::new(&repo);
+  app.branch.initialize();
+
   let res = event_loop::run_app(&mut terminal, app, tick_rate);
 
   // restore terminal

@@ -5,6 +5,7 @@ use git2::{Repository, StatusEntry, Statuses};
 use tui::style::{Color, Style};
 use tui::widgets::{ListItem, ListState};
 
+use crate::git::branch::Branch;
 use crate::git::{GetPath, StatusExt};
 
 pub struct StatefulList<T> {
@@ -16,6 +17,7 @@ pub struct App<'a> {
   pub repo: &'a Repository,
   pub title: &'static str,
   pub list: StatefulList<Statuses<'a>>,
+  pub branch: Branch<'a>,
 }
 
 impl<'a> App<'a> {
@@ -29,6 +31,7 @@ impl<'a> App<'a> {
       repo,
       title: "RustyGit",
       list: StatefulList::with_items(statuses),
+      branch: Branch::new(repo),
     }
   }
 

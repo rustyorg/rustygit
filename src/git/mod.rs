@@ -7,6 +7,8 @@ use std::path::Path;
 use anyhow::{anyhow, Result};
 use git2::{Repository, Status, StatusEntry};
 
+pub mod branch;
+
 pub fn open_current_repo() -> Repository {
   match Repository::open(".") {
     Ok(repo) => repo,
